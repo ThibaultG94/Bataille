@@ -38,6 +38,3 @@ function distribution() {
 
 initialiseDeck();
 distribution();
-console.log(deck);
-console.log(deckLeft);
-console.log(deckRight);

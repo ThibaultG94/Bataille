@@ -18,6 +18,21 @@ function display() {
   rightCard.textContent = deckRight[0];
 }
 
+//--------------------------------------------------
+// FONCTION RAJOUT DE CARTES EN CAS D'EGALITE
+//--------------------------------------------------
+
+function addCards() {
+  let newSpanLeft = document.createElement("span");
+  let newSpanRight = document.createElement("span");
+  document.querySelector(".left-cards").append(newSpanLeft);
+  document.querySelector(".right-cards").append(newSpanRight);
+  newSpanLeft.classList = "delete";
+  newSpanRight.classList = "delete";
+  newSpanLeft.textContent = deckLeft[n];
+  newSpanRight.textContent = deckRight[n];
+}
+
 //----------------------------------------------------
 // FONCTION ENLEVEMENT DES CARTES EN CAS D'EGALITE
 //----------------------------------------------------
@@ -36,6 +51,26 @@ function removeCards() {
   }
 }
 
+//-----------------------------
+// FONCTIONS GAGNANTES
+//----------------------------
+
+function winLeft(e) {
+  deckLeft.push(deckRight[e]);
+  deckRight.splice(e, 1);
+  let winCard = deckLeft[e];
+  deckLeft.splice(e, 1);
+  deckLeft.push(winCard);
+}
+
+function winRight(e) {
+  deckRight.push(deckLeft[e]);
+  deckLeft.splice(e, 1);
+  let winCard = deckRight[e];
+  deckRight.splice(e, 1);
+  deckRight.push(winCard);
+}
+
 //-----------------------------------------
 // FONCTION EGALITE DES CARTES
 //-----------------------------------------
@@ -44,11 +79,7 @@ function equalBattle() {
   if (n > 0) {
     if (deckLeft[n] > deckRight[n]) {
       for (let i = n; i > 0; i--) {
-        deckLeft.push(deckRight[n]);
-        deckRight.splice(n, 1);
-        let winCard = deckLeft[n];
-        deckLeft.splice(n, 1);
-        deckLeft.push(winCard);
+        winLeft(n);
         n--;
       }
       left = true;
@@ -56,11 +87,7 @@ function equalBattle() {
       equalBattle();
     } else if (deckLeft[n] < deckRight[n]) {
       for (let i = n; i > 0; i--) {
-        deckRight.push(deckLeft[n]);
-        deckLeft.splice(n, 1);
-        let winCard = deckRight[n];
-        deckRight.splice(n, 1);
-        deckRight.push(winCard);
+        winRight(n);
         n--;
       }
       right = true;
@@ -68,31 +95,16 @@ function equalBattle() {
       equalBattle();
     } else {
       n++;
-      let newSpanLeft = document.createElement("span");
-      let newSpanRight = document.createElement("span");
-      document.querySelector(".left-cards").append(newSpanLeft);
-      document.querySelector(".right-cards").append(newSpanRight);
-      newSpanLeft.classList = "delete";
-      newSpanRight.classList = "delete";
-      newSpanLeft.textContent = deckLeft[n];
-      newSpanRight.textContent = deckRight[n];
+      addCards();
     }
   } else {
     if (left) {
-      deckLeft.push(deckRight[0]);
-      deckRight.splice(0, 1);
-      let winCard = deckLeft[0];
-      deckLeft.splice(0, 1);
-      deckLeft.push(winCard);
+      winLeft(0);
       display();
       left = false;
       right = false;
     } else if (right) {
-      deckRight.push(deckLeft[0]);
-      deckLeft.splice(0, 1);
-      let winCard = deckRight[0];
-      deckRight.splice(0, 1);
-      deckRight.push(winCard);
+      winRight(0);
       display();
       left = false;
       right = false;
@@ -110,39 +122,24 @@ function battle() {
   if (n > 0) {
     equalBattle();
   } else {
-    n = 0;
     if (deckLeft[0] > deckRight[0]) {
-      deckLeft.push(deckRight[0]);
-      deckRight.splice(0, 1);
-      let winCard = deckLeft[0];
-      deckLeft.splice(0, 1);
-      deckLeft.push(winCard);
+      winLeft(0);
       display();
     } else if (deckLeft[0] < deckRight[0]) {
-      deckRight.push(deckLeft[0]);
-      deckLeft.splice(0, 1);
-      let winCard = deckRight[0];
-      deckRight.splice(0, 1);
-      deckRight.push(winCard);
+      winRight(0);
       display();
     } else {
       n++;
-      let newSpanLeft = document.createElement("span");
-      let newSpanRight = document.createElement("span");
-      document.querySelector(".left-cards").append(newSpanLeft);
-      document.querySelector(".right-cards").append(newSpanRight);
-      newSpanLeft.classList = "delete";
-      newSpanRight.classList = "delete";
-      newSpanLeft.textContent = deckLeft[n];
-      newSpanRight.textContent = deckRight[n];
+      addCards();
     }
   }
 }
-display();
 
 //-------------------------
 // BOUTON JOUER
 //-------------------------
+
+display();
 
 form.addEventListener("submit", () => {
   battle();
