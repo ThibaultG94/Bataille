@@ -1,0 +1,32 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.container {
+    display: flex;
+    align-items: center;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+.score {
+    display: flex;
+    width: 80vw;
+    align-items: center;
+    justify-content: space-around;
+    padding: 200px 0;
+}
+
+.btn {
+    padding: 10px 20px;
+    font-size: 2rem;
+    background-color: aqua;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+span {
+    font-size: 4rem;
+}
