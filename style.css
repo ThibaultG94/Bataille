@@ -4,6 +4,10 @@
     box-sizing: border-box;
 }
 
+body {
+    background: #69ac55;
+}
+
 .container {
     display: flex;
     align-items: center;

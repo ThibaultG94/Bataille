@@ -142,7 +142,7 @@ function battle() {
 display();
 
 form.addEventListener("submit", () => {
-  if (deckLeft.length > 0 && deckRight.length > 0) {
+  if (deckLeft.length > n && deckRight.length > n) {
     battle();
   } else if (deckLeft.length > deckRight.length) {
     alert("Left Win !");
