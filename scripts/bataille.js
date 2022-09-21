@@ -142,7 +142,34 @@ function battle() {
 display();
 
 form.addEventListener("submit", () => {
-  battle();
-  console.log(deckLeft);
-  console.log(deckRight);
+  if (deckLeft.length > 0 && deckRight.length > 0) {
+    battle();
+  } else if (deckLeft.length > deckRight.length) {
+    alert("Left Win !");
+  } else if (deckLeft.length < deckRight.length) {
+    alert("Right Win !");
+  } else {
+    alert("Error :(");
+  }
 });
+
+function battleTest() {
+  if (deckLeft.length > n && deckRight.length > n) {
+    battle();
+  } else if (deckLeft.length > deckRight.length) {
+    alert("Left Win !");
+    clearInterval(intervalId);
+  } else if (deckLeft.length < deckRight.length) {
+    alert("Right Win !");
+    clearInterval(intervalId);
+  } else {
+    alert("Error :(");
+    clearInterval(intervalId);
+  }
+}
+
+function speedTest() {
+  intervalId = setInterval(battleTest, 1);
+}
+
+speedTest();
