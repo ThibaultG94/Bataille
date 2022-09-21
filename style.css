@@ -13,7 +13,7 @@
 
 .score {
     display: flex;
-    width: 80vw;
+    width: 100vw;
     align-items: center;
     justify-content: space-around;
     padding: 200px 0;
@@ -25,6 +25,19 @@
     background-color: aqua;
     border-radius: 10px;
     cursor: pointer;
+}
+
+.cards {
+    display: flex;
+    width: 50vw;
+    align-items: center;
+    justify-content: space-around;
+    padding-bottom: 200px;
+}
+
+.cards span {
+    background-color: yellow;
+    padding: 5px 15px;
 }
 
 span {
