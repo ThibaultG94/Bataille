@@ -52,7 +52,7 @@ function removeCards() {
 }
 
 //-----------------------------
-// FONCTIONS GAGNANTES
+// FONCTIONS CARTE GAGNANTE
 //----------------------------
 
 function winLeft(e) {
@@ -172,4 +172,4 @@ function speedTest() {
   intervalId = setInterval(battleTest, 1);
 }
 
-speedTest();
+// speedTest();

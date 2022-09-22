@@ -19,8 +19,30 @@ body {
     display: flex;
     width: 100vw;
     align-items: center;
-    justify-content: space-around;
-    padding: 200px 0;
+    justify-content: space-between;
+    padding: 30px;
+}
+
+.left,
+.right {
+    background: url("./assets/img/dos_de_carte.jpg") center/cover;
+    width: 300px;
+    height: 427px;
+    text-align: center;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50px;
+}
+
+.left span,
+.right span {
+    box-shadow: 1px 1px 1px black;
+    border: 3px solid black;
+    background-color: #69ac55;
+    border-radius: 10px;
+    padding: 5px;
 }
 
 .btn {
@@ -39,10 +61,24 @@ body {
     padding-bottom: 200px;
 }
 
+.left-card,
+.right-card {
+    width: 300px;
+    height: 427px;
+    text-align: center;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50px;
+}
+
 .cards span {
-    background-color: yellow;
-    padding: 5px 15px;
-    margin-right: 20px;
+    box-shadow: 1px 1px 1px black;
+    border: 3px solid black;
+    background-color: #69ac55;
+    border-radius: 10px;
+    padding: 5px;
 }
 
 span {
