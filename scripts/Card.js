@@ -68,15 +68,27 @@ class Card {
         let filename;
         const suitName = frenchSuit.slice(0, -1);
         
-        if (this.suit === Card.SUITS.CLUBS && this.rank === Card.RANKS.TWO) {
-            filename = '02--Trèfle.png';
-        } else if (this.rank >= Card.RANKS.JACK) {
-            filename = `${frenchRank}-${suitName}.png`;
+        // Nouvelle logique SVG
+        // On suppose que les fichiers SVG sont nommés comme "2_of_clubs.svg", "jack_of_hearts.svg", etc.
+        const suitMap = {
+            [Card.SUITS.HEARTS]: 'hearts',
+            [Card.SUITS.DIAMONDS]: 'diamonds',
+            [Card.SUITS.CLUBS]: 'clubs',
+            [Card.SUITS.SPADES]: 'spades'
+        };
+        const rankMap = {
+            [Card.RANKS.ACE]: 'ace',
+            [Card.RANKS.JACK]: 'jack',
+            [Card.RANKS.QUEEN]: 'queen',
+            [Card.RANKS.KING]: 'king',
+        };
+        let svgName = '';
+        if (this.rank in rankMap) {
+            svgName = `${rankMap[this.rank]}_of_${suitMap[this.suit]}.svg`;
         } else {
-            filename = `${frenchRank}-${suitName}.png`;
+            svgName = `${this.rank}_of_${suitMap[this.suit]}.svg`;
         }
-        
-        return `./assets/img/${frenchSuit}/${filename}`;
+        return `./assets/${svgName}`;
     }
 
     toString() {
