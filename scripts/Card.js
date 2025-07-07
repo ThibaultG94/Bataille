@@ -7,7 +7,6 @@ class Card {
     };
 
     static RANKS = {
-        ACE: 1,
         TWO: 2,
         THREE: 3,
         FOUR: 4,
@@ -19,7 +18,8 @@ class Card {
         TEN: 10,
         JACK: 11,
         QUEEN: 12,
-        KING: 13
+        KING: 13,
+        ACE: 14
     };
 
     static FRENCH_SUITS = {
@@ -30,7 +30,6 @@ class Card {
     };
 
     static FRENCH_RANKS = {
-        [Card.RANKS.ACE]: '01',
         [Card.RANKS.TWO]: '02',
         [Card.RANKS.THREE]: '03',
         [Card.RANKS.FOUR]: '04',
@@ -42,7 +41,8 @@ class Card {
         [Card.RANKS.TEN]: '10',
         [Card.RANKS.JACK]: '11_Jack',
         [Card.RANKS.QUEEN]: '12_Queen',
-        [Card.RANKS.KING]: '13_King'
+        [Card.RANKS.KING]: '13_King',
+        [Card.RANKS.ACE]: '01'
     };
 
     constructor(suit, rank) {

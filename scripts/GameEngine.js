@@ -96,14 +96,23 @@ class GameEngine {
     handleBattle(playedCards, roundBattlePile) {
         this.battlePile.push(...roundBattlePile);
         
+        const faceDownCards = [];
         const battleCards = [];
         let canContinueBattle = true;
         
         for (const player of this.players) {
-            if (player.hasCards()) {
+            if (player.getCardCount() >= 2) {
+                const faceDownCard = player.playCard();
                 const battleCard = player.playCard();
+                
+                faceDownCards.push({ player, card: faceDownCard });
                 battleCards.push({ player, card: battleCard });
-                this.battlePile.push(battleCard);
+                
+                this.battlePile.push(faceDownCard, battleCard);
+            } else if (player.hasCards()) {
+                const lastCard = player.playCard();
+                battleCards.push({ player, card: lastCard });
+                this.battlePile.push(lastCard);
             } else {
                 canContinueBattle = false;
                 break;
@@ -115,9 +124,19 @@ class GameEngine {
             if (winner) {
                 winner.winRound(this.battlePile);
                 this.battlePile = [];
-                return this.createRoundResult(playedCards, 'battle_insufficient_cards', winner);
+                return this.createRoundResult(playedCards, 'battle_insufficient_cards', winner, null, battleCards, faceDownCards);
             }
-            return this.createRoundResult(playedCards, 'battle_draw');
+            return this.createRoundResult(playedCards, 'battle_draw', null, null, battleCards, faceDownCards);
+        }
+
+        if (battleCards.length < 2) {
+            const winner = this.players.find(p => p.hasCards());
+            if (winner) {
+                winner.winRound(this.battlePile);
+                this.battlePile = [];
+                return this.createRoundResult(playedCards, 'battle_insufficient_cards', winner, null, battleCards, faceDownCards);
+            }
+            return this.createRoundResult(playedCards, 'battle_draw', null, null, battleCards, faceDownCards);
         }
 
         const [player1Battle, player2Battle] = battleCards;
@@ -129,7 +148,8 @@ class GameEngine {
                 'battle_continue',
                 null,
                 null,
-                battleCards
+                battleCards,
+                faceDownCards
             );
         }
 
@@ -139,7 +159,7 @@ class GameEngine {
         winner.winRound(this.battlePile);
         this.battlePile = [];
         
-        const currentBattleLength = this.battlePile.length / 2;
+        const currentBattleLength = (this.battlePile.length + faceDownCards.length + battleCards.length) / 2;
         if (currentBattleLength > this.gameStats.longestBattle) {
             this.gameStats.longestBattle = currentBattleLength;
         }
@@ -149,16 +169,18 @@ class GameEngine {
             'battle_resolved',
             winner,
             loser,
-            battleCards
+            battleCards,
+            faceDownCards
         );
     }
 
-    createRoundResult(playedCards, type, winner = null, loser = null, battleCards = []) {
+    createRoundResult(playedCards, type, winner = null, loser = null, battleCards = [], faceDownCards = []) {
         return {
             round: this.currentRound,
             type,
             playedCards,
             battleCards,
+            faceDownCards,
             winner,
             loser,
             gameState: this.gameState,

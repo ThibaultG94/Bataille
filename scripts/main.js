@@ -5,9 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     window.gameEngine = gameEngine;
     window.gameUI = gameUI;
     
-    gameUI.updateBattleMessage('Welcome to War! Click "New Game" to start playing.');
+    gameUI.updateBattleMessage('Bienvenue dans la Bataille! Cliquez "New Game" pour commencer.');
     
     console.log('War Card Game initialized successfully!');
-    console.log('Game Engine:', gameEngine);
-    console.log('Game UI:', gameUI);
+    console.log('Ace is now the highest card (value: 14)');
 });
