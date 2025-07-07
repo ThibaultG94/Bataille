@@ -371,50 +371,83 @@ body::before {
     width: 100%;
 }
 
-/* Enhanced Deck Volume Effect */
+/* Enhanced Deck Volume Effect avec vraies cartes empilées */
 .deck-pile {
     position: relative;
     perspective: 1000px;
     transform-style: preserve-3d;
 }
 
-/* Effet de volume basé sur le nombre de cartes */
-.deck-pile[data-cards="0"] .card-back::before,
-.deck-pile[data-cards="0"] .card-back::after {
-    display: none;
-}
-
-.deck-pile[data-cards]:not([data-cards="0"]) .card-back::before {
+/* Création des cartes empilées visuellement */
+.deck-pile[data-cards]:not([data-cards="0"])::before {
     content: '';
     position: absolute;
     top: -1px;
     left: -1px;
-    right: 1px;
-    bottom: 1px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    width: var(--card-width);
+    height: var(--card-height);
+    background: url('../assets/img/dos_de_carte.jpg') center/cover;
     border-radius: var(--card-radius);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
     z-index: -1;
-    transform: translateZ(-2px);
+    opacity: 0.8;
 }
 
-.deck-pile[data-cards]:not([data-cards="0"]) .card-back::after {
+.deck-pile[data-cards]:not([data-cards="0"])::after {
     content: '';
     position: absolute;
     top: -2px;
     left: -2px;
-    right: 2px;
-    bottom: 2px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    width: var(--card-width);
+    height: var(--card-height);
+    background: url('../assets/img/dos_de_carte.jpg') center/cover;
     border-radius: var(--card-radius);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.15);
     z-index: -2;
-    transform: translateZ(-4px);
+    opacity: 0.6;
 }
 
-/* Volume supplémentaire pour les gros paquets */
-.deck-pile[data-cards] {
-    filter: drop-shadow(2px 2px 0 rgba(255, 255, 255, 0.1)) drop-shadow(4px 4px 0 rgba(255, 255, 255, 0.05));
+/* Volume différencié selon la taille du paquet */
+.deck-pile[data-cards^="1"]::before {
+    /* 10-19 cartes */
+    top: -0.5px;
+    left: -0.5px;
+}
+
+.deck-pile[data-cards^="1"]::after {
+    top: -1px;
+    left: -1px;
+}
+
+.deck-pile[data-cards^="2"]::before {
+    /* 20-29 cartes */
+    top: -1px;
+    left: -1px;
+}
+
+.deck-pile[data-cards^="2"]::after {
+    top: -2px;
+    left: -2px;
+}
+
+.deck-pile[data-cards^="3"]::before,
+.deck-pile[data-cards^="4"]::before,
+.deck-pile[data-cards^="5"]::before {
+    /* 30+ cartes */
+    top: -1.5px;
+    left: -1.5px;
+}
+
+.deck-pile[data-cards^="3"]::after,
+.deck-pile[data-cards^="4"]::after,
+.deck-pile[data-cards^="5"]::after {
+    top: -3px;
+    left: -3px;
+}
+
+/* Ombre portée pour l'effet de profondeur */
+.deck-pile[data-cards]:not([data-cards="0"]) {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .card-back {
@@ -511,42 +544,172 @@ body::before {
     overflow: hidden;
 }
 
-/* Central battle area for played cards */
+/* Central battle area - Cartes côte à côte */
 .central-battle-area {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 15px;
     flex: 1;
     width: 100%;
     position: relative;
     perspective: 1000px;
     justify-content: center;
-    min-height: calc(var(--played-card-height) + 40px);
+    min-height: calc(var(--played-card-height) + 60px);
 }
 
 .battle-cards-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    /* Changé de column à row pour côte à côte */
     align-items: center;
-    gap: 3px;
+    justify-content: center;
+    gap: 15px;
+    /* Espace entre les cartes */
     position: relative;
     min-height: var(--played-card-height);
+    flex-wrap: wrap;
+    max-width: 100%;
 }
 
 .battle-cards-container .card {
     position: relative;
     z-index: 10;
+    flex-shrink: 0;
 }
 
 .battle-cards-container .card.face-down {
     opacity: 0.8;
     z-index: 5;
-    transform: scale(0.9);
+    transform: scale(0.95);
 }
 
-.battle-cards-container .card:not(:first-child) {
-    margin-top: -10px;
+/* Animation de sortie du paquet vers le centre */
+.card.slide-from-deck {
+    animation: slideFromDeck 0.8s var(--bounce) forwards;
+}
+
+@keyframes slideFromDeck {
+    0% {
+        transform: translateX(0) translateY(0) rotateY(180deg) scale(0.8);
+        opacity: 0;
+    }
+
+    50% {
+        transform: translateX(0) translateY(-30px) rotateY(90deg) scale(0.9);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: translateX(0) translateY(0) rotateY(0deg) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Animation spéciale pour Player 1 (vient de la gauche) */
+.card.slide-from-deck.from-player1 {
+    animation: slideFromDeckLeft 0.8s var(--bounce) forwards;
+}
+
+@keyframes slideFromDeckLeft {
+    0% {
+        transform: translateX(-200px) translateY(0) rotateY(180deg) scale(0.8);
+        opacity: 0;
+    }
+
+    50% {
+        transform: translateX(-100px) translateY(-30px) rotateY(90deg) scale(0.9);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: translateX(0) translateY(0) rotateY(0deg) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Animation spéciale pour Player 2 (vient de la droite) */
+.card.slide-from-deck.from-player2 {
+    animation: slideFromDeckRight 0.8s var(--bounce) forwards;
+}
+
+@keyframes slideFromDeckRight {
+    0% {
+        transform: translateX(200px) translateY(0) rotateY(180deg) scale(0.8);
+        opacity: 0;
+    }
+
+    50% {
+        transform: translateX(100px) translateY(-30px) rotateY(90deg) scale(0.9);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: translateX(0) translateY(0) rotateY(0deg) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Regroupement des cartes de bataille */
+.battle-cards-container.battle-mode {
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+}
+
+.battle-cards-container.battle-mode .card:not(:first-child) {
+    margin-top: -15px;
+    /* Léger chevauchement pour les batailles */
+}
+
+/* Animation des cartes qui volent vers le gagnant */
+.card.fly-to-winner {
+    animation: flyToWinner 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    z-index: 100;
+}
+
+/* Vers Player 1 (gauche) */
+.card.fly-to-winner.to-player1 {
+    animation: flyToPlayer1 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes flyToPlayer1 {
+    0% {
+        transform: scale(1) rotate(0deg) translateX(0) translateY(0);
+        opacity: 1;
+    }
+
+    20% {
+        transform: scale(1.1) rotate(10deg) translateX(-50px) translateY(-20px);
+        opacity: 0.9;
+    }
+
+    100% {
+        transform: scale(0.4) rotate(360deg) translateX(-300px) translateY(-50px);
+        opacity: 0;
+    }
+}
+
+/* Vers Player 2 (droite) */
+.card.fly-to-winner.to-player2 {
+    animation: flyToPlayer2 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes flyToPlayer2 {
+    0% {
+        transform: scale(1) rotate(0deg) translateX(0) translateY(0);
+        opacity: 1;
+    }
+
+    20% {
+        transform: scale(1.1) rotate(-10deg) translateX(50px) translateY(-20px);
+        opacity: 0.9;
+    }
+
+    100% {
+        transform: scale(0.4) rotate(-360deg) translateX(300px) translateY(-50px);
+        opacity: 0;
+    }
 }
 
 /* Round info - Plus compact */
@@ -627,7 +790,7 @@ body::before {
     }
 }
 
-/* Enhanced Cards */
+/* Enhanced Cards avec nouvelles animations */
 .card {
     width: var(--played-card-width);
     height: var(--played-card-height);
@@ -641,6 +804,7 @@ body::before {
     position: relative;
     overflow: hidden;
     flex-shrink: 0;
+    transform-style: preserve-3d;
 }
 
 .card.battle-card {
@@ -707,6 +871,7 @@ body::before {
     }
 }
 
+/* Animation d'apparition remplacée par slide-from-deck */
 .card.slide-in {
     animation: enhancedSlideIn 0.8s var(--bounce);
 }
@@ -865,7 +1030,7 @@ body::before {
     flex-wrap: wrap;
 }
 
-/* Responsive Design */
+/* Responsive adjustments pour les nouvelles animations */
 @media (max-width: 768px) {
     .game-container {
         grid-template-rows: auto 1fr auto;
@@ -995,6 +1160,49 @@ body::before {
 
     .modal-content p {
         font-size: 0.9rem;
+    }
+
+    /* Ajustements des animations pour mobile */
+    .card.slide-from-deck.from-player1 {
+        animation: slideFromDeckLeftMobile 0.8s var(--bounce) forwards;
+    }
+
+    @keyframes slideFromDeckLeftMobile {
+        0% {
+            transform: translateX(0) translateY(-100px) rotateY(180deg) scale(0.8);
+            opacity: 0;
+        }
+
+        50% {
+            transform: translateX(0) translateY(-50px) rotateY(90deg) scale(0.9);
+            opacity: 0.7;
+        }
+
+        100% {
+            transform: translateX(0) translateY(0) rotateY(0deg) scale(1);
+            opacity: 1;
+        }
+    }
+
+    .card.slide-from-deck.from-player2 {
+        animation: slideFromDeckRightMobile 0.8s var(--bounce) forwards;
+    }
+
+    @keyframes slideFromDeckRightMobile {
+        0% {
+            transform: translateX(0) translateY(100px) rotateY(180deg) scale(0.8);
+            opacity: 0;
+        }
+
+        50% {
+            transform: translateX(0) translateY(50px) rotateY(90deg) scale(0.9);
+            opacity: 0.7;
+        }
+
+        100% {
+            transform: translateX(0) translateY(0) rotateY(0deg) scale(1);
+            opacity: 1;
+        }
     }
 }
 

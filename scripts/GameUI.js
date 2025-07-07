@@ -3,9 +3,9 @@ class GameUI {
     this.gameEngine = gameEngine;
     this.elements = {};
     this.animations = {
-      cardSlideDelay: 300,
+      cardSlideDelay: 400,
       battleDelay: 800,
-      winnerHighlightDelay: 1200,
+      winnerHighlightDelay: 1500,
     };
     this.isAutoPlaying = false;
 
@@ -109,7 +109,7 @@ class GameUI {
     if (this.isAutoPlaying) {
       this.gameEngine.stopAutoPlay();
     } else {
-      this.gameEngine.startAutoPlay(600);
+      this.gameEngine.startAutoPlay(800);
     }
   }
 
@@ -133,7 +133,7 @@ class GameUI {
         setTimeout(() => {
           this.toggleBattleMode(false);
           this.disableBattleLayout();
-        }, 800);
+        }, 1000);
       }
     }, this.animations.cardSlideDelay);
   }
@@ -141,23 +141,35 @@ class GameUI {
   animateCardPlay(result) {
     const { playedCards, battleCards, faceDownCards } = result;
 
-    // Animate initial played cards to center
+    // Animate initial played cards to center avec nouvelles animations
     playedCards.forEach((play, index) => {
-      this.createCardElement(play.card, play.player.id, false, false, true);
-      this.animateDeckShake(play.player.id);
+      setTimeout(() => {
+        this.createCardElement(
+          play.card,
+          play.player.id,
+          false,
+          false,
+          true,
+          "slide-from-deck"
+        );
+        this.animateDeckShake(play.player.id);
+      }, index * 200);
     });
 
     // Animate face-down cards in battle
     if (faceDownCards && faceDownCards.length > 0) {
       setTimeout(() => {
         faceDownCards.forEach((faceDown, index) => {
-          this.createCardElement(
-            faceDown.card,
-            faceDown.player.id,
-            false,
-            true,
-            true
-          );
+          setTimeout(() => {
+            this.createCardElement(
+              faceDown.card,
+              faceDown.player.id,
+              false,
+              true,
+              true,
+              "slide-from-deck"
+            );
+          }, index * 150);
         });
       }, this.animations.battleDelay / 2);
     }
@@ -166,13 +178,16 @@ class GameUI {
     if (battleCards && battleCards.length > 0) {
       setTimeout(() => {
         battleCards.forEach((battle, index) => {
-          this.createCardElement(
-            battle.card,
-            battle.player.id,
-            true,
-            false,
-            true
-          );
+          setTimeout(() => {
+            this.createCardElement(
+              battle.card,
+              battle.player.id,
+              true,
+              false,
+              true,
+              "slide-from-deck"
+            );
+          }, index * 150);
         });
       }, this.animations.battleDelay);
     }
@@ -183,11 +198,19 @@ class GameUI {
     playerId,
     isBattleCard = false,
     isFaceDown = false,
-    useCenter = false
+    useCenter = false,
+    animationClass = "slide-in"
   ) {
     const cardElement = document.createElement("div");
-    cardElement.className = "card slide-in";
+    cardElement.className = `card ${animationClass}`;
     cardElement.dataset.playerId = playerId;
+
+    // Ajouter la classe spécifique au joueur pour l'animation
+    if (animationClass === "slide-from-deck") {
+      cardElement.classList.add(
+        playerId === 1 ? "from-player1" : "from-player2"
+      );
+    }
 
     if (isFaceDown) {
       cardElement.classList.add("face-down");
@@ -209,6 +232,11 @@ class GameUI {
     let targetElement;
     if (useCenter && window.innerWidth > 768) {
       targetElement = this.elements.centralBattleCards;
+
+      // En mode bataille, ajuster le layout
+      if (isBattleCard || isFaceDown) {
+        targetElement.classList.add("battle-mode");
+      }
     } else {
       targetElement =
         playerId === 1
@@ -219,7 +247,11 @@ class GameUI {
     targetElement.appendChild(cardElement);
 
     setTimeout(() => {
-      cardElement.classList.remove("slide-in");
+      cardElement.classList.remove(
+        animationClass,
+        "from-player1",
+        "from-player2"
+      );
     }, this.animations.cardSlideDelay);
   }
 
@@ -231,6 +263,7 @@ class GameUI {
   disableBattleLayout() {
     this.elements.player1PlayedCards.classList.remove("battle-mode");
     this.elements.player2PlayedCards.classList.remove("battle-mode");
+    this.elements.centralBattleCards.classList.remove("battle-mode");
   }
 
   highlightWinner(winner) {
@@ -259,11 +292,16 @@ class GameUI {
     winnerCountElement.classList.add("winner");
     winnerDeck.classList.add("winner-glow");
 
-    // Animate cards flying to winner's deck
+    // Animate cards flying to winner's deck avec nouvelles animations
     setTimeout(() => {
       allPlayedCards.forEach((card, index) => {
         setTimeout(() => {
-          card.classList.add("winning-card");
+          // Ajouter les classes spécifiques selon le gagnant
+          if (winner.id === 1) {
+            card.classList.add("fly-to-winner", "to-player1");
+          } else {
+            card.classList.add("fly-to-winner", "to-player2");
+          }
         }, index * 100);
       });
     }, 300);
@@ -467,9 +505,9 @@ class GameUI {
     const deckElement =
       playerId === 1 ? this.elements.player1Deck : this.elements.player2Deck;
 
-    deckElement.classList.add("shake");
+    deckElement.parentElement.classList.add("shake");
     setTimeout(() => {
-      deckElement.classList.remove("shake");
-    }, 500);
+      deckElement.parentElement.classList.remove("shake");
+    }, 600);
   }
 }
