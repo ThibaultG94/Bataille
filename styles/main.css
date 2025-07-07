@@ -253,7 +253,7 @@ body::before {
     justify-content: space-between;
     align-items: stretch;
     flex: 1;
-    gap: 20px;
+    gap: 15px;
     padding: 20px;
     background: var(--glass-bg);
     backdrop-filter: blur(20px);
@@ -264,6 +264,12 @@ body::before {
     max-height: calc(100vh - 280px);
     position: relative;
     overflow: hidden;
+}
+
+.game-board.war-mode .battle-zone {
+    flex: 2;
+    min-width: 300px;
+    max-width: 400px;
 }
 
 .game-board.war-mode {
@@ -299,6 +305,12 @@ body::before {
     min-height: 0;
     max-height: 100%;
     overflow: hidden;
+    min-width: 180px;
+}
+
+.game-board.war-mode .player-section {
+    flex: 1;
+    min-width: 150px;
 }
 
 .player-section:hover {
@@ -386,6 +398,65 @@ body::before {
     perspective: 1000px;
 }
 
+/* 3D Deck Volume Effect */
+.deck-pile::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: 2px;
+    bottom: 2px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    border-radius: var(--card-radius);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: -1;
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.deck-pile::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: 4px;
+    bottom: 4px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    border-radius: var(--card-radius);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    z-index: -2;
+    opacity: 0;
+    transition: var(--transition);
+}
+
+/* Volume based on card count */
+.deck-pile[data-cards="0"]::before,
+.deck-pile[data-cards="0"]::after {
+    opacity: 0;
+}
+
+.deck-pile[data-cards]:not([data-cards="0"])::before {
+    opacity: 0.6;
+}
+
+.deck-pile[data-cards]:not([data-cards="0"])::after {
+    opacity: 0.3;
+}
+
+/* Extra volume for larger decks */
+.deck-pile[data-cards]:not([data-cards="0"]) {
+    transform: translateZ(0);
+}
+
+.deck-pile[data-cards] .card-back {
+    box-shadow:
+        0 10px 25px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        2px 2px 0 rgba(255, 255, 255, 0.1),
+        4px 4px 0 rgba(255, 255, 255, 0.05);
+}
+
 .card-back {
     width: var(--card-width);
     height: var(--card-height);
@@ -470,34 +541,28 @@ body::before {
 
 /* Enhanced Played Cards */
 .played-cards {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    justify-content: center;
-    min-height: var(--card-height);
-    max-height: calc(var(--card-height) * 1.2);
-    align-items: flex-start;
-    perspective: 1000px;
-    overflow: hidden;
-    position: relative;
+    display: none;
+    /* Hide original played cards areas */
 }
 
-/* Battle cards layout - stack vertically in center */
-.played-cards.battle-mode {
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    max-height: calc(var(--card-height) * 1.8);
-}
+/* Show them only in mobile layout */
+@media (max-width: 768px) {
+    .played-cards {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: center;
+        min-height: calc(var(--card-height) * 0.6);
+        max-height: calc(var(--card-height) * 0.8);
+        align-items: flex-start;
+        perspective: 1000px;
+        overflow: hidden;
+        position: relative;
+    }
 
-.played-cards.battle-mode .card {
-    width: calc(var(--card-width) * 0.8);
-    height: calc(var(--card-height) * 0.8);
-    margin: 0;
-}
-
-.played-cards.battle-mode .card:not(:first-child) {
-    margin-top: -10px;
+    .central-battle-area {
+        display: none;
+    }
 }
 
 .card {
@@ -635,6 +700,85 @@ body::before {
     border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     flex-shrink: 0;
+    transition: var(--transition);
+}
+
+/* Central battle area for played cards */
+.central-battle-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    min-height: calc(var(--card-height) + 40px);
+    max-height: calc(var(--card-height) * 2.5);
+    overflow: visible;
+    position: relative;
+    width: 100%;
+    perspective: 1000px;
+}
+
+.battle-cards-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    position: relative;
+    min-height: var(--card-height);
+}
+
+.battle-cards-container .card {
+    position: relative;
+    z-index: 10;
+}
+
+.battle-cards-container .card.face-down {
+    opacity: 0.8;
+    z-index: 5;
+    transform: scale(0.9);
+}
+
+.battle-cards-container .card:not(:first-child) {
+    margin-top: -15px;
+}
+
+/* Winning cards animation */
+.card.winning-card {
+    animation: cardToWinner 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    z-index: 100;
+}
+
+@keyframes cardToWinner {
+    0% {
+        transform: scale(1) rotate(0deg) translateY(0);
+        opacity: 1;
+    }
+
+    20% {
+        transform: scale(1.1) rotate(5deg) translateY(-10px);
+        opacity: 0.9;
+    }
+
+    100% {
+        transform: scale(0.3) rotate(720deg) translateY(-200px);
+        opacity: 0;
+    }
+}
+
+/* Winner deck glow effect */
+.deck-pile.winner-glow {
+    animation: winnerDeckGlow 1s ease-in-out;
+}
+
+@keyframes winnerDeckGlow {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 0 transparent);
+    }
+
+    50% {
+        filter: drop-shadow(0 0 20px rgba(67, 233, 123, 0.8));
+    }
 }
 
 .round-info {
@@ -882,6 +1026,7 @@ body::before {
         padding: 12px;
         min-height: 0;
         flex: 0 0 auto;
+        min-width: auto;
     }
 
     .battle-zone {
@@ -892,6 +1037,23 @@ body::before {
         max-width: none;
         width: 100%;
         flex: 0 0 auto;
+    }
+
+    .central-battle-area {
+        display: none;
+    }
+
+    .played-cards {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: center;
+        min-height: calc(var(--card-height) * 0.6);
+        max-height: calc(var(--card-height) * 0.8);
+        align-items: flex-start;
+        perspective: 1000px;
+        overflow: hidden;
+        position: relative;
     }
 
     #player2 {
@@ -915,11 +1077,18 @@ body::before {
 
     .played-cards.battle-mode {
         max-height: calc(var(--card-height) * 1.2);
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
     }
 
     .played-cards.battle-mode .card {
         width: calc(var(--card-width) * 0.7);
         height: calc(var(--card-height) * 0.7);
+    }
+
+    .played-cards.battle-mode .card:not(:first-child) {
+        margin-top: -10px;
     }
 
     .vs-indicator {

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +8,10 @@
     <link rel="stylesheet" href="./styles/main.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
     <div class="game-container">
         <header class="game-header">
@@ -30,7 +33,7 @@
                     </div>
                 </div>
                 <div class="card-area">
-                    <div class="deck-pile">
+                    <div class="deck-pile" data-cards="0">
                         <div class="card-back" id="player1Deck"></div>
                     </div>
                     <div class="played-cards" id="player1PlayedCards"></div>
@@ -42,6 +45,13 @@
                     <span class="round-number">Round: <span id="roundNumber">0</span></span>
                     <div class="battle-message" id="battleMessage">Welcome to War!</div>
                 </div>
+
+                <div class="central-battle-area">
+                    <div class="battle-cards-container" id="centralBattleCards">
+                        <!-- Battle cards will be dynamically added here -->
+                    </div>
+                </div>
+
                 <div class="vs-indicator">VS</div>
             </div>
 
@@ -54,7 +64,7 @@
                     </div>
                 </div>
                 <div class="card-area">
-                    <div class="deck-pile">
+                    <div class="deck-pile" data-cards="0">
                         <div class="card-back" id="player2Deck"></div>
                     </div>
                     <div class="played-cards" id="player2PlayedCards"></div>
@@ -90,4 +100,5 @@
     <script src="./scripts/GameUI.js"></script>
     <script src="./scripts/main.js"></script>
 </body>
+
 </html>

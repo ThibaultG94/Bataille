@@ -25,6 +25,7 @@ class GameUI {
       player2Deck: document.getElementById("player2Deck"),
       player1PlayedCards: document.getElementById("player1PlayedCards"),
       player2PlayedCards: document.getElementById("player2PlayedCards"),
+      centralBattleCards: document.getElementById("centralBattleCards"),
       roundNumber: document.getElementById("roundNumber"),
       battleMessage: document.getElementById("battleMessage"),
       gameState: document.getElementById("gameState"),
@@ -140,9 +141,9 @@ class GameUI {
   animateCardPlay(result) {
     const { playedCards, battleCards, faceDownCards } = result;
 
-    // Animate initial played cards
+    // Animate initial played cards to center
     playedCards.forEach((play, index) => {
-      this.createCardElement(play.card, play.player.id, false);
+      this.createCardElement(play.card, play.player.id, false, false, true);
       this.animateDeckShake(play.player.id);
     });
 
@@ -154,6 +155,7 @@ class GameUI {
             faceDown.card,
             faceDown.player.id,
             false,
+            true,
             true
           );
         });
@@ -164,15 +166,28 @@ class GameUI {
     if (battleCards && battleCards.length > 0) {
       setTimeout(() => {
         battleCards.forEach((battle, index) => {
-          this.createCardElement(battle.card, battle.player.id, true, false);
+          this.createCardElement(
+            battle.card,
+            battle.player.id,
+            true,
+            false,
+            true
+          );
         });
       }, this.animations.battleDelay);
     }
   }
 
-  createCardElement(card, playerId, isBattleCard = false, isFaceDown = false) {
+  createCardElement(
+    card,
+    playerId,
+    isBattleCard = false,
+    isFaceDown = false,
+    useCenter = false
+  ) {
     const cardElement = document.createElement("div");
     cardElement.className = "card slide-in";
+    cardElement.dataset.playerId = playerId;
 
     if (isFaceDown) {
       cardElement.classList.add("face-down");
@@ -190,10 +205,16 @@ class GameUI {
       }
     }
 
-    const targetElement =
-      playerId === 1
-        ? this.elements.player1PlayedCards
-        : this.elements.player2PlayedCards;
+    // Determine target element - use central area on desktop, player areas on mobile
+    let targetElement;
+    if (useCenter && window.innerWidth > 768) {
+      targetElement = this.elements.centralBattleCards;
+    } else {
+      targetElement =
+        playerId === 1
+          ? this.elements.player1PlayedCards
+          : this.elements.player2PlayedCards;
+    }
 
     targetElement.appendChild(cardElement);
 
@@ -213,31 +234,51 @@ class GameUI {
   }
 
   highlightWinner(winner) {
-    const winnerCards =
-      winner.id === 1
-        ? this.elements.player1PlayedCards
-        : this.elements.player2PlayedCards;
+    // Get all played cards from both central area and player areas
+    const allPlayedCards = [
+      ...this.elements.centralBattleCards.querySelectorAll(".card"),
+      ...this.elements.player1PlayedCards.querySelectorAll(".card"),
+      ...this.elements.player2PlayedCards.querySelectorAll(".card"),
+    ];
 
     const winnerCountElement =
       winner.id === 1
         ? this.elements.player1Count.parentElement
         : this.elements.player2Count.parentElement;
 
-    winnerCards.querySelectorAll(".card").forEach((card) => {
+    const winnerDeck =
+      winner.id === 1
+        ? this.elements.player1Deck.parentElement
+        : this.elements.player2Deck.parentElement;
+
+    // Highlight winner cards
+    allPlayedCards.forEach((card) => {
       card.classList.add("winner");
     });
 
     winnerCountElement.classList.add("winner");
+    winnerDeck.classList.add("winner-glow");
+
+    // Animate cards flying to winner's deck
+    setTimeout(() => {
+      allPlayedCards.forEach((card, index) => {
+        setTimeout(() => {
+          card.classList.add("winning-card");
+        }, index * 100);
+      });
+    }, 300);
 
     setTimeout(() => {
       this.clearPlayedCards();
       winnerCountElement.classList.remove("winner");
+      winnerDeck.classList.remove("winner-glow");
     }, this.animations.winnerHighlightDelay);
   }
 
   clearPlayedCards() {
     this.elements.player1PlayedCards.innerHTML = "";
     this.elements.player2PlayedCards.innerHTML = "";
+    this.elements.centralBattleCards.innerHTML = "";
     this.disableBattleLayout();
   }
 
@@ -249,10 +290,26 @@ class GameUI {
     this.elements.player2Count.textContent =
       gameState.players[1]?.cardCount || 0;
 
+    // Update deck volume effect
+    this.updateDeckVolume();
     this.updateDeckVisibility();
     this.updateButtonStates();
     this.updateProgressBar();
     this.updateGameStateText();
+  }
+
+  updateDeckVolume() {
+    const gameState = this.gameEngine.getGameState();
+
+    // Update player 1 deck volume
+    const player1Deck = this.elements.player1Deck.parentElement;
+    const player1Cards = gameState.players[0]?.cardCount || 0;
+    player1Deck.setAttribute("data-cards", player1Cards);
+
+    // Update player 2 deck volume
+    const player2Deck = this.elements.player2Deck.parentElement;
+    const player2Cards = gameState.players[1]?.cardCount || 0;
+    player2Deck.setAttribute("data-cards", player2Cards);
   }
 
   updateDeckVisibility() {
