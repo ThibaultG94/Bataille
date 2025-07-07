@@ -4,8 +4,8 @@ class GameUI {
     this.elements = {};
     this.animations = {
       cardSlideDelay: 300,
-      battleDelay: 1000,
-      winnerHighlightDelay: 1500,
+      battleDelay: 800,
+      winnerHighlightDelay: 1200,
     };
     this.isAutoPlaying = false;
 
@@ -108,7 +108,7 @@ class GameUI {
     if (this.isAutoPlaying) {
       this.gameEngine.stopAutoPlay();
     } else {
-      this.gameEngine.startAutoPlay(800);
+      this.gameEngine.startAutoPlay(600);
     }
   }
 
@@ -116,8 +116,10 @@ class GameUI {
     this.updateRoundNumber(result.round);
     this.animateCardPlay(result);
 
+    // Enable battle mode for better layout
     if (result.type.includes("battle")) {
       this.toggleBattleMode(true);
+      this.enableBattleLayout();
     }
 
     setTimeout(() => {
@@ -126,7 +128,11 @@ class GameUI {
 
       if (result.winner) {
         this.highlightWinner(result.winner);
-        this.toggleBattleMode(false);
+        // Small delay before disabling battle mode
+        setTimeout(() => {
+          this.toggleBattleMode(false);
+          this.disableBattleLayout();
+        }, 800);
       }
     }, this.animations.cardSlideDelay);
   }
@@ -134,11 +140,13 @@ class GameUI {
   animateCardPlay(result) {
     const { playedCards, battleCards, faceDownCards } = result;
 
+    // Animate initial played cards
     playedCards.forEach((play, index) => {
       this.createCardElement(play.card, play.player.id, false);
       this.animateDeckShake(play.player.id);
     });
 
+    // Animate face-down cards in battle
     if (faceDownCards && faceDownCards.length > 0) {
       setTimeout(() => {
         faceDownCards.forEach((faceDown, index) => {
@@ -152,6 +160,7 @@ class GameUI {
       }, this.animations.battleDelay / 2);
     }
 
+    // Animate battle cards
     if (battleCards && battleCards.length > 0) {
       setTimeout(() => {
         battleCards.forEach((battle, index) => {
@@ -193,6 +202,16 @@ class GameUI {
     }, this.animations.cardSlideDelay);
   }
 
+  enableBattleLayout() {
+    this.elements.player1PlayedCards.classList.add("battle-mode");
+    this.elements.player2PlayedCards.classList.add("battle-mode");
+  }
+
+  disableBattleLayout() {
+    this.elements.player1PlayedCards.classList.remove("battle-mode");
+    this.elements.player2PlayedCards.classList.remove("battle-mode");
+  }
+
   highlightWinner(winner) {
     const winnerCards =
       winner.id === 1
@@ -219,6 +238,7 @@ class GameUI {
   clearPlayedCards() {
     this.elements.player1PlayedCards.innerHTML = "";
     this.elements.player2PlayedCards.innerHTML = "";
+    this.disableBattleLayout();
   }
 
   updateUI() {
