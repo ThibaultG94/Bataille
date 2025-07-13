@@ -584,130 +584,138 @@ body::before {
     transform: scale(0.95);
 }
 
-/* Animation de sortie du paquet vers le centre */
+/* Animation de sortie du paquet vers le centre - LOGIQUE CORRIGÉE */
 .card.slide-from-deck {
-    animation: slideFromDeck 0.8s var(--bounce) forwards;
+    animation: slideFromDeck 1s var(--bounce) forwards;
+    position: fixed;
+    /* Position fixe pour pouvoir se déplacer librement */
+    z-index: 1000;
+    pointer-events: none;
 }
 
-@keyframes slideFromDeck {
-    0% {
-        transform: translateX(0) translateY(0) rotateY(180deg) scale(0.8);
-        opacity: 0;
-    }
-
-    50% {
-        transform: translateX(0) translateY(-30px) rotateY(90deg) scale(0.9);
-        opacity: 0.7;
-    }
-
-    100% {
-        transform: translateX(0) translateY(0) rotateY(0deg) scale(1);
-        opacity: 1;
-    }
-}
-
-/* Animation spéciale pour Player 1 (vient de la gauche) */
+/* Animation depuis le paquet Player 1 (gauche) */
 .card.slide-from-deck.from-player1 {
-    animation: slideFromDeckLeft 0.8s var(--bounce) forwards;
+    animation: slideFromPlayer1Deck 1s var(--bounce) forwards;
 }
 
-@keyframes slideFromDeckLeft {
+@keyframes slideFromPlayer1Deck {
     0% {
-        transform: translateX(-200px) translateY(0) rotateY(180deg) scale(0.8);
-        opacity: 0;
+        /* Position initiale: exactement sur le paquet Player 1 */
+        top: var(--player1-deck-top);
+        left: var(--player1-deck-left);
+        transform: rotateY(180deg) scale(0.8);
+        opacity: 0.8;
     }
 
-    50% {
-        transform: translateX(-100px) translateY(-30px) rotateY(90deg) scale(0.9);
-        opacity: 0.7;
+    30% {
+        /* Légère élévation depuis le paquet */
+        top: calc(var(--player1-deck-top) - 20px);
+        left: var(--player1-deck-left);
+        transform: rotateY(90deg) scale(0.9);
+        opacity: 0.9;
     }
 
     100% {
-        transform: translateX(0) translateY(0) rotateY(0deg) scale(1);
+        /* Position finale: centre de l'écran */
+        top: var(--center-top);
+        left: var(--center-left);
+        transform: rotateY(0deg) scale(1);
         opacity: 1;
     }
 }
 
-/* Animation spéciale pour Player 2 (vient de la droite) */
+/* Animation depuis le paquet Player 2 (droite) */
 .card.slide-from-deck.from-player2 {
-    animation: slideFromDeckRight 0.8s var(--bounce) forwards;
+    animation: slideFromPlayer2Deck 1s var(--bounce) forwards;
 }
 
-@keyframes slideFromDeckRight {
+@keyframes slideFromPlayer2Deck {
     0% {
-        transform: translateX(200px) translateY(0) rotateY(180deg) scale(0.8);
-        opacity: 0;
+        /* Position initiale: exactement sur le paquet Player 2 */
+        top: var(--player2-deck-top);
+        left: var(--player2-deck-left);
+        transform: rotateY(180deg) scale(0.8);
+        opacity: 0.8;
     }
 
-    50% {
-        transform: translateX(100px) translateY(-30px) rotateY(90deg) scale(0.9);
-        opacity: 0.7;
+    30% {
+        /* Légère élévation depuis le paquet */
+        top: calc(var(--player2-deck-top) - 20px);
+        left: var(--player2-deck-left);
+        transform: rotateY(90deg) scale(0.9);
+        opacity: 0.9;
     }
 
     100% {
-        transform: translateX(0) translateY(0) rotateY(0deg) scale(1);
+        /* Position finale: centre de l'écran */
+        top: var(--center-top);
+        left: var(--center-left);
+        transform: rotateY(0deg) scale(1);
         opacity: 1;
     }
 }
 
-/* Regroupement des cartes de bataille */
-.battle-cards-container.battle-mode {
-    flex-direction: column;
-    gap: 8px;
-    align-items: center;
-}
-
-.battle-cards-container.battle-mode .card:not(:first-child) {
-    margin-top: -15px;
-    /* Léger chevauchement pour les batailles */
-}
-
-/* Animation des cartes qui volent vers le gagnant */
-.card.fly-to-winner {
-    animation: flyToWinner 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-    z-index: 100;
-}
-
-/* Vers Player 1 (gauche) */
+/* Animation des cartes qui retournent au paquet gagnant */
 .card.fly-to-winner.to-player1 {
-    animation: flyToPlayer1 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation: flyBackToPlayer1 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    position: fixed;
+    z-index: 999;
 }
 
-@keyframes flyToPlayer1 {
+@keyframes flyBackToPlayer1 {
     0% {
-        transform: scale(1) rotate(0deg) translateX(0) translateY(0);
+        /* Position actuelle au centre */
+        top: var(--center-top);
+        left: var(--center-left);
+        transform: scale(1) rotate(0deg);
         opacity: 1;
     }
 
     20% {
-        transform: scale(1.1) rotate(10deg) translateX(-50px) translateY(-20px);
+        /* Petite élévation */
+        top: calc(var(--center-top) - 30px);
+        left: calc(var(--center-left) - 50px);
+        transform: scale(1.1) rotate(15deg);
         opacity: 0.9;
     }
 
     100% {
-        transform: scale(0.4) rotate(360deg) translateX(-300px) translateY(-50px);
+        /* Retour au paquet Player 1 */
+        top: var(--player1-deck-top);
+        left: var(--player1-deck-left);
+        transform: scale(0.4) rotate(720deg);
         opacity: 0;
     }
 }
 
-/* Vers Player 2 (droite) */
 .card.fly-to-winner.to-player2 {
-    animation: flyToPlayer2 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation: flyBackToPlayer2 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    position: fixed;
+    z-index: 999;
 }
 
-@keyframes flyToPlayer2 {
+@keyframes flyBackToPlayer2 {
     0% {
-        transform: scale(1) rotate(0deg) translateX(0) translateY(0);
+        /* Position actuelle au centre */
+        top: var(--center-top);
+        left: var(--center-left);
+        transform: scale(1) rotate(0deg);
         opacity: 1;
     }
 
     20% {
-        transform: scale(1.1) rotate(-10deg) translateX(50px) translateY(-20px);
+        /* Petite élévation */
+        top: calc(var(--center-top) - 30px);
+        left: calc(var(--center-left) + 50px);
+        transform: scale(1.1) rotate(-15deg);
         opacity: 0.9;
     }
 
     100% {
-        transform: scale(0.4) rotate(-360deg) translateX(300px) translateY(-50px);
+        /* Retour au paquet Player 2 */
+        top: var(--player2-deck-top);
+        left: var(--player2-deck-left);
+        transform: scale(0.4) rotate(-720deg);
         opacity: 0;
     }
 }

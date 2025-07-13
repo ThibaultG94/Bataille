@@ -205,6 +205,11 @@ class GameUI {
     cardElement.className = `card ${animationClass}`;
     cardElement.dataset.playerId = playerId;
 
+    // Calculer les positions pour les animations
+    if (animationClass === "slide-from-deck") {
+      this.setCardAnimationPositions(cardElement, playerId);
+    }
+
     // Ajouter la classe spécifique au joueur pour l'animation
     if (animationClass === "slide-from-deck") {
       cardElement.classList.add(
@@ -244,7 +249,23 @@ class GameUI {
           : this.elements.player2PlayedCards;
     }
 
-    targetElement.appendChild(cardElement);
+    // Pour les animations depuis le paquet, on ajoute au body puis on déplace vers le target
+    if (animationClass === "slide-from-deck" && useCenter) {
+      document.body.appendChild(cardElement);
+
+      // Après l'animation, déplacer la carte vers le conteneur cible
+      setTimeout(() => {
+        if (cardElement.parentNode === document.body) {
+          cardElement.style.position = "relative";
+          cardElement.style.top = "auto";
+          cardElement.style.left = "auto";
+          cardElement.style.transform = "none";
+          targetElement.appendChild(cardElement);
+        }
+      }, 1000);
+    } else {
+      targetElement.appendChild(cardElement);
+    }
 
     setTimeout(() => {
       cardElement.classList.remove(
@@ -253,6 +274,41 @@ class GameUI {
         "from-player2"
       );
     }, this.animations.cardSlideDelay);
+  }
+
+  setCardAnimationPositions(cardElement, playerId) {
+    // Calculer les positions des paquets et du centre
+    const player1Deck = this.elements.player1Deck;
+    const player2Deck = this.elements.player2Deck;
+    const centralArea = this.elements.centralBattleCards;
+
+    const player1Rect = player1Deck.getBoundingClientRect();
+    const player2Rect = player2Deck.getBoundingClientRect();
+    const centralRect = centralArea.getBoundingClientRect();
+
+    // Position du centre de la zone de bataille
+    const centerTop = centralRect.top + centralRect.height / 2 - 98; // 98 = moitié de la hauteur de carte
+    const centerLeft = centralRect.left + centralRect.width / 2 - 70; // 70 = moitié de la largeur de carte
+
+    // Positions des paquets
+    const player1DeckTop = player1Rect.top;
+    const player1DeckLeft = player1Rect.left;
+    const player2DeckTop = player2Rect.top;
+    const player2DeckLeft = player2Rect.left;
+
+    // Injecter les variables CSS personnalisées
+    cardElement.style.setProperty("--player1-deck-top", `${player1DeckTop}px`);
+    cardElement.style.setProperty(
+      "--player1-deck-left",
+      `${player1DeckLeft}px`
+    );
+    cardElement.style.setProperty("--player2-deck-top", `${player2DeckTop}px`);
+    cardElement.style.setProperty(
+      "--player2-deck-left",
+      `${player2DeckLeft}px`
+    );
+    cardElement.style.setProperty("--center-top", `${centerTop}px`);
+    cardElement.style.setProperty("--center-left", `${centerLeft}px`);
   }
 
   enableBattleLayout() {
@@ -296,11 +352,25 @@ class GameUI {
     setTimeout(() => {
       allPlayedCards.forEach((card, index) => {
         setTimeout(() => {
+          // Calculer les positions pour l'animation de retour
+          this.setReturnAnimationPositions(card, winner.id);
+
           // Ajouter les classes spécifiques selon le gagnant
           if (winner.id === 1) {
             card.classList.add("fly-to-winner", "to-player1");
           } else {
             card.classList.add("fly-to-winner", "to-player2");
+          }
+
+          // Déplacer vers le body pour l'animation globale
+          if (card.parentNode !== document.body) {
+            const rect = card.getBoundingClientRect();
+            card.style.position = "fixed";
+            card.style.top = `${rect.top}px`;
+            card.style.left = `${rect.left}px`;
+            card.style.setProperty("--center-top", `${rect.top}px`);
+            card.style.setProperty("--center-left", `${rect.left}px`);
+            document.body.appendChild(card);
           }
         }, index * 100);
       });
@@ -310,7 +380,40 @@ class GameUI {
       this.clearPlayedCards();
       winnerCountElement.classList.remove("winner");
       winnerDeck.classList.remove("winner-glow");
+
+      // Nettoyer les cartes restantes dans le body
+      document.querySelectorAll(".card.fly-to-winner").forEach((card) => {
+        if (card.parentNode === document.body) {
+          card.remove();
+        }
+      });
     }, this.animations.winnerHighlightDelay);
+  }
+
+  setReturnAnimationPositions(cardElement, winnerId) {
+    // Calculer les positions pour l'animation de retour
+    const winnerDeck =
+      winnerId === 1 ? this.elements.player1Deck : this.elements.player2Deck;
+    const winnerRect = winnerDeck.getBoundingClientRect();
+
+    // Position du paquet gagnant
+    const winnerDeckTop = winnerRect.top;
+    const winnerDeckLeft = winnerRect.left;
+
+    // Injecter les variables CSS pour l'animation de retour
+    if (winnerId === 1) {
+      cardElement.style.setProperty("--player1-deck-top", `${winnerDeckTop}px`);
+      cardElement.style.setProperty(
+        "--player1-deck-left",
+        `${winnerDeckLeft}px`
+      );
+    } else {
+      cardElement.style.setProperty("--player2-deck-top", `${winnerDeckTop}px`);
+      cardElement.style.setProperty(
+        "--player2-deck-left",
+        `${winnerDeckLeft}px`
+      );
+    }
   }
 
   clearPlayedCards() {
